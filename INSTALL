@@ -6,7 +6,12 @@ should install passage to the standard locations.
 
 To install on a macOS system with Homebrew type
 
-    make install PREFIX="$(brew --cellar)/passage/$(git describe --tags)"
+    make install PREFIX="$(brew --cellar)/passage/$(git describe --tags)" WITH_ALLCOMP=yes
+    brew link passage
+
+If the repository has no tags (e.g. a fork), use the short commit hash instead:
+
+    make install PREFIX="$(brew --cellar)/passage/$(git rev-parse --short HEAD)" WITH_ALLCOMP=yes
     brew link passage
 
 The makefile is aware of the following environment variables:
