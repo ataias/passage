@@ -39,6 +39,8 @@ install-common:
 	@[ "$(WITH_FISHCOMP)" = "yes" ] || exit 0; install -v -d "$(DESTDIR)$(FISHCOMPDIR)" && install -m 0644 -v src/completion/pass.fish-completion "$(DESTDIR)$(FISHCOMPDIR)/passage.fish"
 
 
+CLIP_SWIFT := src/platform/darwin-clip.swift
+
 ifneq ($(strip $(wildcard $(PLATFORMFILE))),)
 install: install-common
 	@install -v -d "$(DESTDIR)$(LIBDIR)/passage" && install -m 0644 -v "$(PLATFORMFILE)" "$(DESTDIR)$(LIBDIR)/passage/platform.sh"
@@ -46,6 +48,12 @@ install: install-common
 	@install -v -d "$(DESTDIR)$(BINDIR)/"
 	@trap 'rm -f src/.passage' EXIT; sed 's:.*PLATFORM_FUNCTION_FILE.*:source "$(LIBDIR)/passage/platform.sh":;s:^SYSTEM_EXTENSION_DIR=.*:SYSTEM_EXTENSION_DIR="$(LIBDIR)/passage/extensions":' src/password-store.sh > src/.passage && \
 	install -v -d "$(DESTDIR)$(BINDIR)/" && install -m 0755 -v src/.passage "$(DESTDIR)$(BINDIR)/passage"
+	@if [ -f "$(CLIP_SWIFT)" ] && command -v swiftc >/dev/null 2>&1; then \
+		echo "Compiling passage-clip..."; \
+		swiftc -O -o src/.passage-clip "$(CLIP_SWIFT)" && \
+		install -m 0755 -v src/.passage-clip "$(DESTDIR)$(BINDIR)/passage-clip" && \
+		rm -f src/.passage-clip; \
+	fi
 else
 install: install-common
 	@install -v -d "$(DESTDIR)$(LIBDIR)/passage/extensions"
@@ -56,6 +64,7 @@ endif
 uninstall:
 	@rm -vrf \
 		"$(DESTDIR)$(BINDIR)/passage" \
+		"$(DESTDIR)$(BINDIR)/passage-clip" \
 		"$(DESTDIR)$(LIBDIR)/passage" \
 		"$(DESTDIR)$(BASHCOMPDIR)/passage" \
 		"$(DESTDIR)$(ZSHCOMPDIR)/_passage" \

@@ -5,7 +5,11 @@ clip() {
 	local sleep_argv0="password store sleep for user $(id -u)"
 	pkill -f "^$sleep_argv0" 2>/dev/null && sleep 0.5
 	local before="$(pbpaste | $BASE64)"
-	echo -n "$1" | pbcopy
+	if command -v passage-clip &> /dev/null; then
+		echo -n "$1" | passage-clip
+	else
+		echo -n "$1" | pbcopy
+	fi
 	(
 		( exec -a "$sleep_argv0" sleep "$CLIP_TIME" )
 		local now="$(pbpaste | $BASE64)"
